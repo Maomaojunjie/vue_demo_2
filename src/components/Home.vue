@@ -144,9 +144,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-<<<<<<< HEAD
-</style>
-=======
 .el-container {
   height: 100%;
   background-color: #f5f6f9;
@@ -194,4 +191,3 @@ export default {
   }
 }
 </style>
->>>>>>> user
