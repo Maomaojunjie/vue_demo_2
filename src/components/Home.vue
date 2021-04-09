@@ -16,11 +16,13 @@
       >
         <el-menu-item>
           <template slot="title">
-            <i
-              class="el-icon-s-home"
-              style="color: #fff; margin-right: 16px"
-            ></i>
-            <span>后台首页</span>
+            <div @click="setBreadcrumb">
+              <i
+                class="el-icon-s-home"
+                style="color: #fff; margin-right: 16px"
+              ></i>
+              <span>后台首页</span>
+            </div>
           </template>
         </el-menu-item>
         <el-submenu
@@ -40,7 +42,7 @@
             :index="'/' + subItem.path"
             v-for="subItem in item.children"
             :key="subItem.id"
-            @click="saveNavState('/' + subItem.path)"
+            @click="setBreadcrumb(item, subItem)"
             >{{ subItem.authName }}</el-menu-item
           >
         </el-submenu>
@@ -55,12 +57,16 @@
           </span>
           <el-breadcrumb separator="/">
             <el-breadcrumb-item :to="{ path: '/home' }"
-              >后台首页</el-breadcrumb-item
+              ><a href="javascript:;" @click="setBreadcrumb"
+                >后台首页</a
+              ></el-breadcrumb-item
             >
-            <el-breadcrumb-item
-              ><a href="/users">用户管理</a></el-breadcrumb-item
-            >
-            <el-breadcrumb-item>用户列表</el-breadcrumb-item>
+            <el-breadcrumb-item v-if="authName">{{
+              authName
+            }}</el-breadcrumb-item>
+            <el-breadcrumb-item v-if="cauthName">{{
+              cauthName
+            }}</el-breadcrumb-item>
           </el-breadcrumb>
         </div>
         <div class="right">
@@ -108,12 +114,16 @@ export default {
       //   是否折叠
       isCollapse: false,
       //   被激活的链接地址
-      activePath: ''
+      activePath: '',
+      authName: '',
+      cauthName: ''
     }
   },
   created() {
     this.getMenuList()
     this.activePath = window.sessionStorage.getItem('activePath')
+    this.authName = window.sessionStorage.getItem('authName')
+    this.cauthName = window.sessionStorage.getItem('cauthName')
   },
   methods: {
     handleCommand(command) {
@@ -135,9 +145,32 @@ export default {
     toggleCollapse() {
       this.isCollapse = !this.isCollapse
     },
-    saveNavState(activePath) {
+    setBreadcrumb(item, subItem) {
+      if (!subItem) {
+        this.activePath = ''
+        this.cauthName = ''
+        this.authName = ''
+        window.sessionStorage.removeItem('activePath')
+        window.sessionStorage.removeItem('authName')
+        window.sessionStorage.removeItem('cauthName')
+        this.$router.push('/home')
+        return
+      }
+      const activePath = '/' + subItem.path
       window.sessionStorage.setItem('activePath', activePath)
+      window.sessionStorage.setItem('cauthName', subItem.authName)
       this.activePath = activePath
+      this.cauthName = subItem.authName
+      window.sessionStorage.setItem('authName', item.authName)
+      this.authName = item.authName
+    },
+    saveNavState(activePath, authName, cauthName) {
+      window.sessionStorage.setItem('activePath', activePath)
+      window.sessionStorage.setItem('authName', authName)
+      window.sessionStorage.setItem('cauthName', cauthName)
+      this.activePath = activePath
+      this.authName = authName
+      this.cauthName = cauthName
     }
   }
 }
